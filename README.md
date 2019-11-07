@@ -28,7 +28,7 @@ from breezy import BreezyAPI
 breezy = BreezyAPI()
 
 
-# Upon instantiaton, the breezy object will automatically call the /signi
+# Upon instantiaton, the breezy object will automatically call the /signin
 # endpoint and obtain a token, if it fails to do it will raise an exception.
 print(breezy.token)  # will print the generated token
 
