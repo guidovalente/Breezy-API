@@ -1,6 +1,6 @@
 import requests
 import yaml
-import sys
+
 
 class BreezyError(Exception):
     pass
