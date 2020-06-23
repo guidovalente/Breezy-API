@@ -1,5 +1,7 @@
 import requests
 import yaml
+import json
+from time import sleep
 
 
 class BreezyError(Exception):
@@ -20,10 +22,19 @@ class BreezyAPI:
              data: dict = None) -> dict:
         assert method in ['GET', 'POST', 'PUT'], 'Wrong method provided'
         while True:
+            # jsonify data if using POST/PUT methods
+            if method != 'GET':
+                data = json.dumps(data)
+
             response = requests.request(
                 method,
                 self.API_URL + endpoint,
-                headers={"Authorization": self.token},
+                headers={
+                    "Authorization": self.token,
+                    "Accept": "*/*",
+                    "accept-encoding": "gzip, deflate",
+                    "content-type": "application/json"
+                },
                 params=params,
                 data=data
             )
@@ -35,8 +46,10 @@ class BreezyAPI:
                 sleep(10)
             elif response.status_code == 200:
                 return response.json()
+            elif response.status_code == 204:
+                return None
             elif response.status_code == 500:
-                raise BreezyError(response.json()['error']['message'])
+                raise BreezyError(response.json()['error'])
             elif response.status_code == 504:
                 print('504 error, sleeping 30 seconds')
                 sleep(30)
@@ -52,5 +65,5 @@ class BreezyAPI:
         if token.status_code != 200:
             raise BreezyError('Error obtaining token\nError '
                               f'{token.status_code} > '
-                              f'{token.json()["error"]["message"]}')
+                              f'{token.json()}')
         return token.json()['access_token']
